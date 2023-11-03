@@ -1,6 +1,6 @@
 ## Alternative to dustinkirklands golang-petname.
 
-[![Verify](https://github.com/Bios-Marcel/go-petname/actions/workflows/go.yml/badge.svg)](https://github.com/Bios-Marcel/go-petname/actions/workflows/go.yml)
+[![Verify](https://github.com/Bios-Marcel/go-petname/actions/workflows/verify.yml/badge.svg)](https://github.com/Bios-Marcel/go-petname/actions/workflows/verify.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Bios-Marcel/go-petname.svg)](https://pkg.go.dev/github.com/Bios-Marcel/go-petname)
 
 **!The API is incompatible with dustinkirkland/golang-petname!**
@@ -19,6 +19,7 @@ go get github.com/Bios-Marcel/go-petname
 Call the `Generate` function:
 
 ```go
+// Results in word_word_word
 petname.Generate(3, petname.Lower, petname.Underscore)
 ```
 
