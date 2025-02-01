@@ -60,6 +60,24 @@ func BenchmarkGenerate(b *testing.B) {
 	})
 }
 
+func BenchmarkGenerateV2(b *testing.B) {
+	b.Run("lowercase", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			GenerateV2(3, Lower, Hyphen)
+		}
+	})
+	b.Run("titlecase", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			GenerateV2(3, Title, Hyphen)
+		}
+	})
+	b.Run("uppercase", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			GenerateV2(3, Upper, Hyphen)
+		}
+	})
+}
+
 func TestGenerateDifferentWordLists(t *testing.T) {
 	SetNames(long.Names)
 	SetAdjectives(long.Adjectives)

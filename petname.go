@@ -103,6 +103,85 @@ func asciiByteToUpper(b byte) byte {
 // Generate will create a petname using the given configuration. Casing and
 // word separation are different, allowing things such as `Word-Word-Word` or
 // `WORD_WORD_WORD`.
+func GenerateV2(wordCount uint, casing Casing, separator Separator) string {
+	// FIXME Ideas:
+	//   Reduce rand calls by generating a randint64 and using left and half.
+	var words []string
+	switch wordCount {
+	case 0:
+		// Without this case, passing 0 as the wordCount will cause a very
+		// slow call. This is because we are using a unit, which we'll subtract
+		// 2 from, causing MaxUint - 2 iterations.
+		return ""
+	case 1:
+		words = []string{Name()}
+	case 2:
+		words = []string{Adjective(), Name()}
+	case 3:
+		// Potentially common cases have shortcut implementations to
+		// reduce allocations and CPU usage, even though default: would handle
+		// them correctly.
+		words = []string{Adverb(), Adjective(), Name()}
+	case 4:
+		words = []string{Adverb(), Adverb(), Adjective(), Name()}
+	default:
+		words = make([]string, 0, wordCount)
+		for i := uint(0); i < wordCount-2; i++ {
+			words = append(words, Adverb())
+		}
+
+		words = append(words, Adjective(), Name())
+	}
+
+	var byteLen int
+	for _, word := range words {
+		byteLen += len(word)
+	}
+
+	if separator != None {
+		byteLen += len(words) - 1
+	}
+
+	// Default case, so we risk doing the allocation twice
+	buffer := make([]byte, 0, 64)
+	if byteLen > 64 {
+		buffer = make([]byte, 0, byteLen)
+	}
+
+	if separator != None {
+		appendWord(casing, words[0], buffer)
+		for _, word := range words[1:] {
+			buffer = append(buffer, separator)
+			appendWord(casing, word, buffer)
+		}
+	} else {
+		for _, word := range words {
+			appendWord(casing, word, buffer)
+		}
+	}
+
+	return string(buffer)
+}
+
+func appendWord(casing Casing, word string, buffer []byte) {
+	switch casing {
+	case Upper:
+		for i := 0; i < len(word); i++ {
+			buffer = append(buffer, asciiByteToUpper(word[i]))
+		}
+	case Title:
+		buffer = append(buffer, asciiByteToUpper(word[0]))
+		buffer = append(buffer, word[1:]...)
+	case Lower:
+		fallthrough
+	default:
+		buffer = append(buffer, word...)
+	}
+}
+
+// Generate will create a petname using the given configuration. Casing and
+// word separation are different, allowing things such as `Word-Word-Word` or
+// `WORD_WORD_WORD`.
 func Generate(wordCount uint, casing Casing, separator Separator) string {
 	var words []string
 	switch wordCount {
