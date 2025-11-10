@@ -9,6 +9,8 @@ import (
 	"github.com/Bios-Marcel/go-petname/medium"
 	"github.com/Bios-Marcel/go-petname/short"
 	"github.com/stretchr/testify/require"
+
+	dustin "github.com/dustinkirkland/golang-petname"
 )
 
 // oldGenerate is the implementation i initially wrote for dustinkirklands
@@ -37,25 +39,36 @@ func oldGenerate(wordCount int, separator string) string {
 }
 
 func BenchmarkOldGenerate(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		oldGenerate(3, "-")
+	}
+}
+
+func BenchmarkDustinKirkland(b *testing.B) {
+	for b.Loop() {
+		dustin.Generate(3, "-")
 	}
 }
 
 func BenchmarkGenerate(b *testing.B) {
 	b.Run("lowercase", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			Generate(3, Lower, Hyphen)
 		}
 	})
 	b.Run("titlecase", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			Generate(3, Title, Hyphen)
 		}
 	})
 	b.Run("uppercase", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			Generate(3, Upper, Hyphen)
+		}
+	})
+	b.Run("man words", func(b *testing.B) {
+		for b.Loop() {
+			Generate(30, Lower, Hyphen)
 		}
 	})
 }
@@ -95,7 +108,7 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestGenerateDifferentLengths(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		Seed(1)
 		require.NotEmpty(t, Generate(3, Lower, None))
 		Seed(1)
@@ -125,6 +138,10 @@ func TestGenerateZeroWords(t *testing.T) {
 func FuzzGenerate(f *testing.F) {
 	f.Add(uint(3), 1, None)
 	f.Fuzz(func(t *testing.T, wordCount uint, casing int, separator Separator) {
-		Generate(wordCount, Casing(casing), separator)
+		if wordCount == 0 {
+			require.Empty(t, Generate(wordCount, Casing(casing), separator))
+		} else {
+			require.NotEmpty(t, Generate(wordCount, Casing(casing), separator))
+		}
 	})
 }

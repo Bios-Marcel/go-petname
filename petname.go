@@ -141,6 +141,9 @@ func Generate(wordCount uint, casing Casing, separator Separator) string {
 	}
 
 	var buffer []byte
+	// Go can always stack allocate small fixed size byte slices.
+	// However, for dynamic ones, not always. The Go compiler SEEMS to have
+	// improved here, but I can't say for certain right now.
 	if byteLen <= 64 {
 		buffer = make([]byte, 0, 64)
 	} else {
